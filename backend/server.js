@@ -1,6 +1,12 @@
 import "dotenv/config";
 import express from "express";
 import cors from "cors";
+
+import path from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
+
 import morgan from "morgan";
 import mongoose from "mongoose";
 
@@ -27,6 +33,11 @@ app.use("/featuredItems", featuredItemsRouter);
 app.use("/products", productsRouter);
 app.use("/basket", basketRouter);
 
+
+// Get the current directory path (equivalent to `__dirname` in CommonJS)
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Connect to MongoDB Atlas database
 mongoose

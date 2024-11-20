@@ -3,6 +3,7 @@ import { randomFnForProducts } from "../utils/utils.js";
 import { HTTP_RESPONSE } from "../utils/config.js";
 import {seedProducts} from "../seeds/products.js"
 import { User } from "../models/user.js";
+import multer from "multer";
 
 // get all products=======================================
 export const getAllProducts = async (req, res) => {
@@ -62,10 +63,38 @@ export const getSearchValue = async (req, res) => {
 	}
 };
 
+
+const storage = multer.diskStorage({
+	destination: (req, file, cb) => {
+	  cb(null, './uploads/images'); // Define the upload directory
+	},
+	filename: (req, file, cb) => {
+	  cb(null, Date.now() + path.extname(file.originalname)); // Filename will be the timestamp and file extension
+	},
+  });
+  
+  const upload = multer({
+	storage,
+	limits: { fileSize: 5 * 1024 * 1024 }, // 5MB file size limit
+	fileFilter: (req, file, cb) => {
+	  // Allow only image file types
+	  const fileTypes = /jpeg|jpg|png|gif/;
+	  const extname = fileTypes.test(path.extname(file.originalname).toLowerCase());
+	  const mimetype = fileTypes.test(file.mimetype);
+  
+	  if (extname && mimetype) {
+		return cb(null, true);
+	  }
+	  cb(new Error("Invalid file type. Only JPEG, PNG, and GIF are allowed."));
+	},
+  }).single('img'); // 'img' is the field name for the image file
+
+  
 // Add a new product to the list ===============================
 export const addProduct = async (req, res) => {
 	try {
-		const { title, description, price, category, img, location } = req.body;
+		const { title, description, price, category, location } = req.body;
+		const img = req.file ? `/uploads/images/${req.file.filename}` : ''; 
 		
 		if (!req.user || !req.user.id) {
 			return res.status(400).json({ message: "User not authenticated" });

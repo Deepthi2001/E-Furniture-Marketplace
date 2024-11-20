@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { TextField, Button, Typography, Card, CardContent, Grid, IconButton } from '@mui/material';
+import { TextField, Button, Typography, Card, CardContent, Grid, FormControl, InputLabel, Input, FormHelperText } from '@mui/material';
+// import { TextField, Button, Typography, Card, CardContent, Grid, FormControl, InputLabel, Input, FormHelperText } from '@mui/material';
 import { APIEndPoints, LOCAL_STORAGE } from "../utils/config";
 
 function AddProduct() {
@@ -12,12 +13,42 @@ function AddProduct() {
         img: '',
     });
 
+    const [imageError, setImageError] = useState('');
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    // const handleImageChange = (e) => {
+    //     const file = e.target.files[0];
+    //     if (file) {
+    //         const reader = new FileReader();
+
+    //         reader.onloadend = () => {
+    //             setFormData({ ...formData, img: reader.result }); // Store base64 image data or you can upload the file
+    //         };
+
+    //         reader.readAsDataURL(file); // Read the file as base64 string (image)
+    //     }
+    // };
+
     const handleImageChange = (e) => {
-        setFormData({ ...formData, img:  e.target.value });
+        const file = e.target.files[0];
+
+        if (file) {
+            const fileType = file.type;
+            const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+            // Validate file type
+            if (!validImageTypes.includes(fileType)) {
+                setImageError('Please select a valid image file (JPEG, PNG, GIF).');
+                return;
+            }
+
+            // Reset error and store the image file
+            setImageError('');
+            setFormData({ ...formData, img: file });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -120,16 +151,50 @@ function AddProduct() {
                             required
                             margin="normal"
                         />
-
-                        <Grid item xs={10}>
-                            <TextField
-                                fullWidth
-                                placeholder="Image URL"
-                                value={formData.img}
-                                onChange={(e) => handleImageChange(e)}
-                                margin="normal"
+                        
+                        
+                        {/* <Grid item xs={10}>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                style={{ marginTop: '10px' }}
                             />
-                        </Grid>
+                            {formData.img && (
+                                <img src={formData.img} alt="Product Preview" style={{ width: '100px', marginTop: '10px' }} />
+                            )}
+                        </Grid> */}
+                        
+                        <FormControl fullWidth style={{ marginTop: '1rem' }} error={Boolean(imageError)}>
+                            <InputLabel htmlFor="product-image" style={{ marginLeft:"-10px", fontSize: "12px" }}>Upload Product Image</InputLabel>
+                            <Input
+                                id="product-image"
+                                type="file"
+                                accept="image/*"
+                                style={{ paddingTop:"20px" }}
+                                onChange={handleImageChange}
+                                required
+                            />
+                            {imageError && <FormHelperText>{imageError}</FormHelperText>}
+                        </FormControl>
+
+                        {formData.img && (
+                            <div style={{ marginTop: '10px' }}>
+                                <img
+                                    src={formData.img}
+                                    alt="Product Preview"
+                                    style={{
+                                        width: '100px',
+                                        height: '100px',
+                                        objectFit: 'cover',
+                                        borderRadius: '8px',
+                                    }}
+                                />
+                                <Typography variant="body2" style={{ marginTop: '5px' }}>
+                                    Image Preview
+                                </Typography>
+                            </div>
+                        )}
 
                         <Button
                             type="submit"
