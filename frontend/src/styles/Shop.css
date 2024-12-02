@@ -132,6 +132,7 @@
 .collection__menu,
 .color__menu,
 .category__menu,
+.location__menu,
 .price__menu {
 	display: flex;
 	justify-content: space-between;
@@ -141,12 +142,14 @@
 
 .collection__menu.removeBorder,
 .color__menu.removeBorder,
+.location__menu.removeBorder,
 .category__menu.removeBorder {
 	border-bottom: none;
 }
 
 .collection__menu,
 .color__menu,
+.location__menu,
 .category__menu {
 	border-bottom: 1px solid #000;
 }

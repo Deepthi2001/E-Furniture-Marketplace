@@ -646,6 +646,7 @@ main {
 	.collection__menu,
 	.color__menu,
 	.category__menu,
+	.location__menu,
 	.price__menu {
 		padding: 2rem 0;
 	}

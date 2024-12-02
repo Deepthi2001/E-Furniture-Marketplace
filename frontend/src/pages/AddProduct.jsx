@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { TextField, Button, Typography, Card, CardContent, Grid } from "@mui/material";
+import { TextField, Button, Typography, Card, CardContent, Grid, Box } from "@mui/material";
 import { APIEndPoints, LOCAL_STORAGE } from "../utils/config";
 import Snackbar from '@mui/material/Snackbar';
 
@@ -101,13 +101,14 @@ function AddProduct({ mode }) {
     };
 
     return (
-        <Grid container justifyContent="center" style={{ marginTop: "2rem" }}>
-            <Card style={{ maxWidth: 600, padding: "20px 5px" }}>
+        <Box sx={{display:"flex", justifyContent:"center", width:"100%"}}>
+            <Card sx={{ maxWidth: 600, padding: "20px 5px" ,marginTop:10,backgroundColor:"#ddd8d591"}}>
                 <CardContent>
                     <Typography gutterBottom variant="h5">
                         {mode === "add" ? "Add a New Product" : "Edit Product Details"}
                     </Typography>
                     <form onSubmit={handleSubmit}>
+                        <Box sx={{display:"flex", flexDirection:"column", gap:2,width:"500px"}}>
                         <TextField
                             fullWidth
                             name="title"
@@ -116,7 +117,7 @@ function AddProduct({ mode }) {
                             value={formData.title}
                             onChange={handleChange}
                             required
-                            margin="normal"
+                            // margin="normal"
                         />
                         <TextField
                             fullWidth
@@ -128,7 +129,7 @@ function AddProduct({ mode }) {
                             value={formData.description}
                             onChange={handleChange}
                             required
-                            margin="normal"
+                            // margin="normal"
                         />
                         <TextField
                             fullWidth
@@ -138,7 +139,7 @@ function AddProduct({ mode }) {
                             value={formData.category}
                             onChange={handleChange}
                             required
-                            margin="normal"
+                            // margin="normal"
                         />
                         <TextField
                             fullWidth
@@ -149,7 +150,7 @@ function AddProduct({ mode }) {
                             value={formData.price}
                             onChange={handleChange}
                             required
-                            margin="normal"
+                            // margin="normal"
                         />
                         <TextField
                             fullWidth
@@ -159,14 +160,13 @@ function AddProduct({ mode }) {
                             value={formData.location}
                             onChange={handleChange}
                             required
-                            margin="normal"
+                            // margin="normal"
                         />
                         {/* File Input for Image Upload */}
                         <input
                             type="file"
                             accept="image/*"
                             onChange={handleImageChange}
-                            style={{ marginTop: "1rem" }}
                             required={mode === "add"} // Required for adding a new product
                         />
                         <Button
@@ -174,10 +174,10 @@ function AddProduct({ mode }) {
                             variant="contained"
                             color="primary"
                             fullWidth
-                            style={{ marginTop: "1rem" }}
                         >
                             {mode === "add" ? "Add Product" : "Update Product"}
                         </Button>
+                        </Box>
                     </form>
                     <Snackbar
                         open={isSnackbarOpen}
@@ -191,7 +191,7 @@ function AddProduct({ mode }) {
 			        />
                 </CardContent>
             </Card>
-        </Grid>
+        </Box>
     );
 }
 

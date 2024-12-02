@@ -104,7 +104,7 @@ const Login = () => {
 				<button type="submit" className="login-btn">
 					SIGN IN
 				</button>
-				<span style={{ display: "block" }}>Or</span>
+				<span style={{ display: "block",textAlign:"center" }}>Or</span>
 				<Link to={PAGE_LINK.REGISTER} className="register-btn">
 					CREATE AN ACCOUNT
 				</Link>
