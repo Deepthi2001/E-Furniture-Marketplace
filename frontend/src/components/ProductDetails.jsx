@@ -38,6 +38,8 @@ const ProductDetails = () => {
     }
 
     const handleSubmitOffer = async (offerPrice) => {
+        if(!isLoggedIn) setCheckModal(true);
+        else {
         const sellerEmail=product.seller.email;
         const userEmail=user.email
         const productTitle=product.title
@@ -73,6 +75,7 @@ const ProductDetails = () => {
           console.error('Error sending offer:', error);
           alert('An error occurred while submitting your offer.');
         }
+      }
       };
 
     const onClickMakeOffer = () => {
@@ -169,7 +172,7 @@ const ProductDetails = () => {
                     loading="lazy"
                     className="product-image"
                 />
-                {isLoggedIn && product.userId != userId && <div className="button-container">
+                { product.userId != userId && <div className="button-container">
                     <button className="make-offer-btn" onClick={onClickMakeOffer}>Make an Offer</button>
                     <button className="make-offer-btn" onClick={()=>handleSubmitOffer(product.price)}>Buy Product now</button>
                 </div>}        
@@ -181,7 +184,7 @@ const ProductDetails = () => {
                 </div>
                 <h3 className="productInfo-price">${product.price}</h3>
                 <ProductInfo description={product.description}/>
-                {isLoggedIn && (product.userId != userId ? <div className="productInfo-select">
+                {(product.userId != userId ? <div className="productInfo-select">
                     <button className="add-btn" onClick={addItemToBasketHandler}>
                         Add to Wishlist
                     </button>

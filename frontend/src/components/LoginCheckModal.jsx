@@ -12,7 +12,7 @@ const LoginCheckModal = ({ onCloseModal }) => {
 					X
 				</button>
 				<h1 className="modal-title">
-					Please login before adding items to the basket!
+					Please login before proceeding doing any action
 				</h1>
 				<div className="modal-btn">
 					<Link to={PAGE_LINK.LOGIN}>Returning Customer</Link>
