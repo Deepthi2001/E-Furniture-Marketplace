@@ -38,8 +38,8 @@ export const makeOffer = async (req, res) => {
     // Email content
     const mailOptions = {
         from: `"Furni Trade" <${process.env.EMAIL_USER}>`,
-        to: "furnituremarketplace123@gmail.com",
-        // to: sellerEmail,
+        // to: "furnituremarketplace123@gmail.com",
+        to: sellerEmail,
         subject: `Exciting Offer Received for Your Product ${productTitle} !`,
         text: `
 

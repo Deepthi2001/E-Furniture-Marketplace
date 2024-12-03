@@ -80,6 +80,7 @@ main {
   margin: 1rem;
   border-radius: 8px;
   font-weight: 600;
+  width: 150px;
 }
 
 .product__btn:hover {
