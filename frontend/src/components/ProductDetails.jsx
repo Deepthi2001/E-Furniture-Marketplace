@@ -1,7 +1,6 @@
 import { useContext, useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { Link, useNavigate } from "react-router-dom";
-//import { Link } from "react-router-dom";
 import { PAGE_LINK } from "../utils/config";
 import LoginCheckModal from "./LoginCheckModal.jsx";
 import Snackbar from '@mui/material/Snackbar';
@@ -17,9 +16,9 @@ import { LOCAL_STORAGE, APIEndPoints } from "../utils/config.js";
 
 const ProductDetails = () => {
     const store = useContext(StoreContext);
-    const product = store.state.product;
-    const isLoggedIn = store.state.isLoggedIn;
-    const user = store.state.user;
+    const { product, isLoggedIn, user } = store.state;
+    const navigate = useNavigate();
+  
     const productId = product._id;
     
     const userId = localStorage.getItem(LOCAL_STORAGE.USER_ID);
@@ -27,6 +26,36 @@ const ProductDetails = () => {
     const [showCheckModal, setCheckModal] = useState(false);
     const [isSnackbarOpen, setIsSnackbarOpen] = useState(false);
     const [submit, setSubmit] = useState(false);
+    const [localProduct, setLocalProduct] = useState(product);
+    const [imageLoaded, setImageLoaded] = useState(false); // Image load state
+    const [isMarkAsSold, setIsMarkAsSold] = useState(false);
+  
+    const placeholderImage = "https://via.placeholder.com/300"; // Default placeholder
+  
+  
+    const handleImageError = useCallback((e) => {
+      e.target.src = placeholderImage;
+    }, []);
+
+    const fetchUpdatedProduct = async () => {
+        try {
+          const res = await fetch(`${APIEndPoints.GETPRODUCT}/${productId}`);
+          const updatedProduct = await res.json();
+          if (res.ok) {
+            console.log("updated product data is ", updatedProduct);
+            setLocalProduct(updatedProduct);
+            console.log("product id is ", productId);
+            console.log("local product data is ", localProduct);
+            store.dispatch({
+              type: StoreActions.UPDATE_PRODUCT,
+              payload: updatedProduct,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching updated product details:", error);
+        }
+    }
+
     const navigate = useNavigate(); // Hook for navigation
 
     const onCloseModal = () => {
@@ -115,52 +144,166 @@ const ProductDetails = () => {
             };
             postBasketData();
         }
-        // reset submit to false after the POST request is made
-        setSubmit(false);
-    }, [submit]);
-
-    const onDeleteProduct = async () => {
-        const confirmDelete = window.confirm(
-            `Are you sure you want to delete the product "${product.title}"? This action cannot be undone.`
-        );
-        if (!confirmDelete) return;
-
+      };
+  
+      const markAsSoldHandler = useCallback(async () => {
         try {
-            const res = await fetch(`${APIEndPoints.DELETEPRODUCT}/${productId}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: localStorage.getItem(LOCAL_STORAGE.TOKEN),
-                },
+          const res = await fetch(`${APIEndPoints.MARKASSOLD}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: localStorage.getItem(LOCAL_STORAGE.TOKEN),
+            },
+            body: JSON.stringify({
+              sold: true,
+              productId,
+              userId,
+            }),
+          });
+      
+          if (res.ok) {
+            alert("Product marked as sold successfully!");
+            store.dispatch({
+              type: StoreActions.UPDATE_PRODUCT,
+              payload: { ...localProduct, sold: true }, // Update the product status in state
             });
-
-            if (!res.ok) throw new Error("Failed to delete product");
-
-            alert("Product deleted successfully!");
-
-            // Redirect the user after deletion
-            navigate(PAGE_LINK.USERPRODUCTS, { replace: true }); // Navigate to the user's product list or another relevant page
+          } else {
+            console.error("Failed to mark product as sold");
+          }
         } catch (error) {
-            console.error("Error deleting product:", error);
-            alert("Failed to delete product. Please try again later.");
+          console.error("Error marking product as sold:", error);
         }
-    };
+      }, [localProduct, productId, userId, store]);
+      
+  
+    const handleSubmitOffer = useCallback(
+      async (offerPrice) => {
+        const sellerEmail = product.seller.email;
+        const userEmail = user.email;
+        const productTitle = product.title;
+        const productPrice = product.price;
+  
+        if (offerPrice <= 0 || isNaN(offerPrice) || productPrice < offerPrice) {
+          alert("Please enter a valid offer price.");
+          return;
+        }
+  
+        try {
+          const response = await fetch(`${APIEndPoints.MAKEOFFER}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userEmail,
+              productTitle,
+              offerPrice,
+              sellerEmail,
+            }),
+          });
+  
+          const data = await response.json();
+          if (data.success) {
+            onCloseModal();
+            setIsSnackbarOpen(true);
+          } else {
+            alert("Failed to send offer");
+          }
+        } catch (error) {
+          console.error("Error sending offer:", error);
+          alert("An error occurred while submitting your offer.");
+        }
+      },
+      [onCloseModal, product, user]
+    );
+  
+    const addItemToBasketHandler = useCallback(() => {
+      if (!isLoggedIn) setCheckModal(true);
+      else setSubmit(true);
+    }, [isLoggedIn]);
+  
+    const onDeleteProduct = useCallback(async () => {
+      const confirmDelete = window.confirm(
+        `Are you sure you want to delete the product "${product.title}"? This action cannot be undone.`
+      );
+      if (!confirmDelete) return;
+  
+      try {
+        const res = await fetch(`${APIEndPoints.DELETEPRODUCT}/${productId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: localStorage.getItem(LOCAL_STORAGE.TOKEN),
+          },
+        });
+  
+        if (!res.ok) throw new Error("Failed to delete product");
+  
+        alert("Product deleted successfully!");
+        navigate(PAGE_LINK.USERPRODUCTS, { replace: true });
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again later.");
+      }
+    }, [navigate, product.title, productId]);
 
-    // add item to basket handler
-    const addItemToBasketHandler = () => {
-        if(!isLoggedIn) setCheckModal(true);
-        else{
-            if (!userId) {
-                setShowModal(true);
-                // reset the quantity after the item has been added to the basket
-                store.dispatch({ type: StoreActions.UPDATE_QUANTITY, payload: 0 });
-            } else {
-                setSubmit(true);
+    useEffect(() => {
+        setIsMarkAsSold(isLoggedIn && product.userId === userId)
+        setLocalProduct(product);
+    }, [product]);
+
+    useEffect(() => {
+        if (!product || product._id !== productId) {
+          const fetchProduct = async () => {
+            try {
+              const response = await fetch(`${APIEndPoints.GETPRODUCT}/${productId}`);
+              const data = await response.json();
+              if (response.ok) {
+                store.dispatch({ type: StoreActions.UPDATE_PRODUCT, payload: data });
+                setLocalProduct(data);
+              }
+            } catch (error) {
+              console.error("Failed to fetch product details:", error);
             }
+          };
+          fetchProduct();
         }
-    };
+      }, [product, productId, store]);
+    
+      if (!localProduct) return <div>Loading product details...</div>;
 
+    // useEffect(() => {
+    //   if (submit) {
+    //     const postBasketData = async () => {
+    //       try {
+    //         const res = await fetch(`${APIEndPoints.BASKET}`, {
+    //           method: "POST",
+    //           headers: {
+    //             "Content-Type": "application/json",
+    //             Authorization: localStorage.getItem(LOCAL_STORAGE.TOKEN),
+    //           },
+    //           body: JSON.stringify({
+    //             productId,
+    //             userId,
+    //             quantity: 1,
+    //           }),
+    //         });
+    //         const resData = await res.json();
+    //         const numberOfItems = resData.data.items;
+    //         store.dispatch({
+    //           type: StoreActions.UPDATE_NUMOFITEMS,
+    //           payload: numberOfItems.length,
+    //         });
+    //       } catch (error) {
+    //         console.error("Error adding item to basket:", error);
+    //       } finally {
+    //         setSubmit(false);
+    //       }
+    //     };
+    //     postBasketData();
+    //   }
+    // }, [submit, productId, userId, store]);
+  
     return (
+
         <section className="product-item">
             <div className="productImg-container">
                 <img
@@ -169,10 +312,33 @@ const ProductDetails = () => {
                     loading="lazy"
                     className="product-image"
                 />
-                {isLoggedIn && product.userId != userId && <div className="button-container">
-                    <button className="make-offer-btn" onClick={onClickMakeOffer}>Make an Offer</button>
-                    <button className="make-offer-btn" onClick={()=>handleSubmitOffer(product.price)}>Buy Product now</button>
-                </div>}        
+                      {isMarkAsSold ? (
+            <div>
+              {localProduct.sold ? (
+                <div className="sold-banner">This product is sold.</div>
+              ) : (
+                <button className="mark-as-sold-btn" onClick={markAsSoldHandler}>
+                  Mark as Sold
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="button-container">
+              <button className="make-offer-btn" onClick={() => setShowModal(true)}>
+                Make an Offer
+              </button>
+              <button
+                className="make-offer-btn"
+                onClick={() => handleSubmitOffer(localProduct.price)}
+              >
+                Buy Product Now
+              </button>
+            </div>
+          )}
+//                 {isLoggedIn && product.userId != userId && <div className="button-container">
+//                     <button className="make-offer-btn" onClick={onClickMakeOffer}>Make an Offer</button>
+//                     <button className="make-offer-btn" onClick={()=>handleSubmitOffer(product.price)}>Buy Product now</button>
+//                 </div>}        
             </div>
             <div className="productInfo-container">
                 <h2 className="productInfo-title">{product.title}</h2>
@@ -225,9 +391,19 @@ const ProductDetails = () => {
                     horizontal: "center",
                 }}
             />
-        </section>
+          )}
+          {showCheckModal && <LoginCheckModal onCloseModal={onCloseCheckModal} />}
+        </Suspense>
+  
+        <Snackbar
+          open={isSnackbarOpen}
+          autoHideDuration={1000}
+          onClose={() => setIsSnackbarOpen(false)}
+          message="Your offer has been successfully sent to the seller!"
+          anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        />
+      </section>
     );
-};
-
-export default ProductDetails;
-
+  };
+  
+  export default React.memo(ProductDetails);  

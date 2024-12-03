@@ -37,6 +37,8 @@ const App = () => {
 					<Route path={PAGE_LINK.USERPRODUCTS} element={<UserProducts />} />
 					{/* <Route path={`${PAGE_LINK.USERPRODUCTS}/:id`} element={<ProductInfos nav={"MYPRODUCTS"} />} /> */}
 					<Route path={PAGE_LINK.BASKET} element={<Basket />} />
+					<Route path={`${PAGE_LINK.USERDETAILS}`} element={<UserProfile />} />
+
 				</Routes>
 			</main>
 			<Footer />
