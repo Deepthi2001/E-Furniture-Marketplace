@@ -13,13 +13,17 @@ const MakeOfferModal = (props) => {
 				<button className="close-button" onClick={onCloseModal}>
 					X
 				</button>
+        <h1>Please enter the price you'd like to offer.</h1>
         <input
           type="number"
           value={offerPrice}
           onChange={(e) => setOfferPrice(e.target.value)}
           placeholder="Enter your offer price"
+          style={{ margin:'20px', padding:'10px' }}
         />
-        <button onClick={() => handleSubmitOffer(offerPrice)}>Submit Offer</button>
+        <button onClick={() => handleSubmitOffer(offerPrice)}
+          style={{ margin:'20px', padding:'5px' }}
+          >Submit Offer</button>
 
       </div>
     </div>
