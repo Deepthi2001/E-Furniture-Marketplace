@@ -82,7 +82,7 @@ const CartItem = ({ item }) => {
 					<Link to={`${PAGE_LINK.SHOP}/${item._id}`}>{item?.productId?.title}</Link>
 				</div>
 			</div>
-			<p>${item.productId.price}</p>
+			<p>{item.productId.location}</p>
 			<p>${Number(item.quantity * item.productId.price).toFixed(2)}</p>
 			<p><FaTrash size={20} color="red" onClick={()=>removeItem(item)} style={{ cursor: 'pointer'}}/></p>	
 			

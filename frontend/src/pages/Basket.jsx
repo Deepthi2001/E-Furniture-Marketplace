@@ -57,7 +57,7 @@ const Basket = () => {
 	return (
 		<div className="shopping-cart">
 			<h1>
-				Shopping Cart <span>: {basketItems.length} items</span>
+				Wishlist Items <span>: {basketItems.length} items</span>
 			</h1>
 			<h1>
 			   TotalPrice <span>: ${totalPrice} </span>
@@ -69,7 +69,7 @@ const Basket = () => {
 					<div className="cart-section">
 						<div className="row header-row">
 							<p className="header">product</p>
-							<p className="header">Unit price</p>
+							<p className="header">Location</p>
 							{/* <p className="header">Quantity</p> */}
 							<p className="header">Price</p>
 						</div>
