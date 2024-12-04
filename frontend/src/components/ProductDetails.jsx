@@ -181,6 +181,7 @@ const ProductDetails = () => {
                 <h2 className="productInfo-title">{product.title}</h2>
                 <div className="stars">
                     <div>{`Product Seller: ${product.seller ? product.seller.username : ''}`}</div>
+                    <div style={{ marginTop:'10px' }}>{`Location: ${product.location}`}</div>
                 </div>
                 <h3 className="productInfo-price">${product.price}</h3>
                 <ProductInfo description={product.description}/>

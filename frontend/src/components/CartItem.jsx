@@ -1,6 +1,8 @@
 import { useContext } from "react";
 import { FaPlus, FaMinus } from "react-icons/fa";
+import { Link } from "react-router-dom";
 
+import { PAGE_LINK } from "../utils/config";
 import { StoreContext, StoreActions } from "../store";
 import { starIcons, getRating } from "../utils/utils";
 import { FaTrash } from 'react-icons/fa';
@@ -77,7 +79,7 @@ const CartItem = ({ item }) => {
 			<div className="body-row-info">
 				{/* <img src={item.productId.img} alt={item.productId.title} /> */}
 				<div className="info-cart">
-					<p>{item?.productId?.title}</p>
+					<Link to={`${PAGE_LINK.SHOP}/${item._id}`}>{item?.productId?.title}</Link>
 				</div>
 			</div>
 			<p>${item.productId.price}</p>
